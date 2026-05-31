@@ -109,7 +109,7 @@
       <h2 id="current-stadium-title" class="text-xl font-black text-white flex items-center gap-1.5">
         <i class="fa-solid fa-location-dot text-green-400"></i> 야구장
       </h2>
-      <button onclick="location.reload()" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700 cursor-pointer">
+      <button onclick="resetAndReload()" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700 cursor-pointer">
         <i class="fa-solid fa-rotate-left mr-1"></i> 처음으로
       </button>
     </div>
@@ -476,6 +476,15 @@
         btnText.innerText = "제보 등록하기";
       }
     });
+
+    // 기존 페이지 정보를 모두 삭제하고 초기 화면으로 돌아가는 함수
+    function resetAndReload() {
+      if (confirm("구장 선택 화면으로 돌아가시겠습니까?")) {
+        localStorage.removeItem("user_stadium"); // 구장 정보 삭제
+        localStorage.removeItem("last_auth_date"); // 날짜 정보 삭제 (필요시)
+        location.reload(); // 페이지 새로고침
+      }
+    }
 
     function resizeAndConvertImage(file) {
       return new Promise((resolve, reject) => {
