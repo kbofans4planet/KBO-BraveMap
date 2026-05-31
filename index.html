@@ -619,20 +619,28 @@ async function showReviewListModal(serial, storeName) {
         if (reviews.length === 0) {
             container.innerHTML = "<p class='text-slate-500 text-sm text-center'>아직 작성된 후기가 없어요!</p>";
         } else {
-            container.innerHTML = reviews.map(r => `
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex justify-between items-start">
-                    <div class="flex-1">
-                        <p class="text-[10px] text-green-400 font-bold mb-1">${teamEmojis[r.team] || "⚾"} ${r.team}</p>
-                        <p class="text-sm text-white">${r.message}</p>
-                    </div>
-                    ${r.photoUrl ? `
-                        <button onclick="openImage('${r.photoUrl}')" 
-                                class="ml-2 text-[10px] bg-slate-700 text-white px-2 py-1 rounded-md hover:bg-slate-600 transition-all">
-                            📸 사진
-                        </button>
-                    ` : ''}
-                </div>
-            `).join('');
+            container.innerHTML = reviews.map(r => {
+                  // 사진 버튼 생성 로직 (조건문을 더 명확하게 변경)
+                  let photoButton = '';
+                  // r.photoUrl이 null, undefined, 빈 문자열이 아닐 때만 생성
+                  if (r.photoUrl && r.photoUrl.length > 10) { 
+                      photoButton = `
+                          <button onclick="openImage('${r.photoUrl}')" 
+                                  class="ml-2 text-[10px] bg-slate-700 text-white px-2 py-1 rounded-md hover:bg-slate-600 transition-all shrink-0">
+                              📸 사진
+                          </button>`;
+                  }
+              
+                  return `
+                      <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex justify-between items-start">
+                          <div class="flex-1">
+                              <p class="text-[10px] text-green-400 font-bold mb-1">${teamEmojis[r.team] || "⚾"} ${r.team}</p>
+                              <p class="text-sm text-white">${r.message}</p>
+                          </div>
+                          ${photoButton}
+                      </div>
+                  `;
+              }).join('');
         }
     } catch (e) {
         container.innerHTML = "후기를 불러오지 못했습니다.";
