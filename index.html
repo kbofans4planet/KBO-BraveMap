@@ -137,30 +137,39 @@
         <input type="text" id="search-input" placeholder="매장 이름이나 메뉴 검색 (예: 떡볶이)" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-green-400">
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <select id="filter-floor" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400">
-          <option value="">모든 층수</option>
-          <option value="1층">1층</option>
-          <option value="2층">2층</option>
-          <option value="3층">3층</option>
-          <option value="4층">4층</option>
-          <option value="구분없음">구분없음</option>
-        </select>
-        <select id="filter-zone" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400">
-          <option value="">모든 구역</option>
-          <option value="1루">1루</option>
-          <option value="3루">3루</option>
-          <option value="중앙">중앙</option>
-          <option value="외야">외야</option>
-          <option value="외부">외부 (입장 전)</option>
-        </select>
+        <div class="relative">
+          <select id="filter-floor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400 appearance-none">
+            <option value="">모든 층수</option>
+            <option value="1층">1층</option>
+            <option value="2층">2층</option>
+            <option value="3층">3층</option>
+            <option value="4층">4층</option>
+            <option value="구분없음">구분없음</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-[10px] pointer-events-none"></i>
+        </div>
+      
+        <div class="relative">
+          <select id="filter-zone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400 appearance-none">
+            <option value="">모든 구역</option>
+            <option value="1루">1루</option>
+            <option value="3루">3루</option>
+            <option value="중앙">중앙</option>
+            <option value="외야">외야</option>
+            <option value="외부">외부 (입장 전)</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-[10px] pointer-events-none"></i>
+        </div>
       </div>
-      <div>
-        <select id="filter-container-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400">
+      
+      <div class="relative mt-2">
+        <select id="filter-container-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:border-green-400 appearance-none">
           <option value="">모든 용기 유형</option>
           <option value="cup">🥤 다회용컵 사용 매장</option>
           <option value="dish">🍲 다회용그릇 사용 매장</option>
           <option value="self">🛍️ 개인용기 환영 매장</option>
         </select>
+        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-[10px] pointer-events-none"></i>
       </div>
     </div>
     <div id="store-list-container" class="space-y-3.5">
