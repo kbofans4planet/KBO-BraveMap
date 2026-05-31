@@ -138,14 +138,16 @@
   </div>
   <div id="report-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4">
-      <div class="flex justify-between items-start">
+      <div class="flex justify-between items-center mb-4"> <!-- items-center 추가 -->
         <div>
           <h3 class="text-base font-bold text-white flex items-center gap-1.5">
             <i class="fa-solid fa-pen-to-square text-green-400"></i> 정보 제보 / 수정 요청
           </h3>
-          <p id="modal-store-name" class="text-xs text-slate-400 mt-0.5 font-medium">매장 정보 업데이트</p>
+          <p id="modal-store-name" class="text-sm text-green-400 font-bold mt-1"></p>
         </div>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-white text-lg p-1 cursor-pointer">&times;</button>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-white text-xl cursor-pointer p-1">
+          &times;
+        </button>
       </div>
       <form id="report-form" class="space-y-3.5">
         <input type="hidden" id="modal-serial-number">
@@ -359,7 +361,9 @@
               <span class="text-[10px] font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded-md">
                 📍 ${s["층수"]} | ${s["구역"]} (${s["인근 블록"]})
               </span>
-              <button onclick="openReportModal('${s["매장일련번호"]}', '${s["매장명"]}')" class="text-[10px] font-bold text-red-500 hover:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20 transition-all cursor-pointer">
+              // renderStoreList 함수 내부 버튼 수정
+              <button onclick="openReportModal('${s["매장일련번호"]}', '${s["매장명"]}')" 
+                      class="text-[10px] font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20 transition-all cursor-pointer">
                 <i class="fa-solid fa-pen mr-1"></i> 개인용기/변경 제보
               </button>
             </div>
