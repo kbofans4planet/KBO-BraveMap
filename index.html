@@ -251,61 +251,68 @@
       `).join('');
     }
     document.getElementById("welcome-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      const nameInput = document.getElementById("user-name").value;
-      const phoneInput = document.getElementById("user-phone").value;
+        e.preventDefault();
     
-      // 로직: 이름이 있는데 전화번호가 없으면 경고 후 중단
-      if (nameInput.trim() !== "" && phoneInput.trim() === "") {
-        alert("이름을 입력하셨다면 전화번호도 꼭 입력해주세요!");
-        document.getElementById("user-phone").focus();
-        return;
-      }
+        const nameInput = document.getElementById("user-name").value;
+        const phoneInput = document.getElementById("user-phone").value;
+        const team = document.getElementById("user-team").value;
+        const stadium = document.getElementById("user-stadium").value;
     
-      const btn = document.getElementById("btn-submit-welcome");
-      const btnText = document.getElementById("btn-text-welcome");
-      btn.disabled = true;
-      btnText.innerText = "잠시만 기다려 주세요...";
-    
-      const team = document.getElementById("user-team").value;
-      const stadium = document.getElementById("user-stadium").value;
-      
-      // 아래에서 다시 const/let을 쓰지 않고 직접 사용
-      let phoneValue = phoneInput; 
-      if (phoneValue) {
-        phoneValue = "'" + phoneValue;
-      }
-    
-      const payload = { action: "auth", team, stadium, name: nameInput, phone: phoneValue };
-
-      try {
-        const response = await fetch(GAS_WEB_APP_URL, {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        if (result.status === "success") {
-          const todayStr = new Date().toISOString().split('T')[0];
-          localStorage.setItem("last_auth_date", todayStr);
-          localStorage.setItem("user_stadium", stadium);
-          localStorage.setItem("user_team", team);
-          if (nameInput) localStorage.setItem("user_name", nameInput);
-          if (phoneInput) localStorage.setItem("user_phone", phoneInput.replace("'", ""));
-          selectedStadium = stadium;
-          showMainView();
-        } else {
-          selectedStadium = stadium;
-          showMainView();
+        if (nameInput.trim() !== "" && phoneInput.trim() === "") {
+            alert("이름을 입력하셨다면 전화번호도 꼭 입력해주세요!");
+            document.getElementById("user-phone").focus();
+            return;
         }
-      } catch (err) {
-        console.error(err);
-        selectedStadium = stadium;
-        showMainView();
-      } finally {
-        btn.disabled = false;
-        btnText.innerText = "다회용기 매장 지도 보기";
-      }
+    
+        // [핵심 로직] 오늘 날짜 확인
+        const todayStr = new Date().toISOString().split('T')[0];
+        const lastAuthDate = localStorage.getItem("last_auth_date");
+        const lastTeam = localStorage.getItem("user_team");
+        const lastStadium = localStorage.getItem("user_stadium");
+    
+        // 오늘 이미 인증했고, 정보가 같다면 서버 전송 건너뜀
+        const isAlreadyParticipated = (lastAuthDate === todayStr && lastTeam === team && lastStadium === stadium);
+    
+        if (isAlreadyParticipated) {
+            // 데이터 없이 바로 메인 화면으로 이동
+            selectedStadium = stadium;
+            showMainView();
+            return;
+        }
+    
+        // 위 조건이 아니라면 서버로 데이터 전송 (기존과 동일)
+        const btn = document.getElementById("btn-submit-welcome");
+        const btnText = document.getElementById("btn-text-welcome");
+        btn.disabled = true;
+        btnText.innerText = "잠시만 기다려 주세요...";
+    
+        let phoneValue = phoneInput ? "'" + phoneInput : "";
+        const payload = { action: "auth", team, stadium, name: nameInput, phone: phoneValue };
+    
+        try {
+            const response = await fetch(GAS_WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            
+            // 성공 시 로컬스토리지에 날짜 및 정보 저장
+            localStorage.setItem("last_auth_date", todayStr);
+            localStorage.setItem("user_stadium", stadium);
+            localStorage.setItem("user_team", team);
+            if (nameInput) localStorage.setItem("user_name", nameInput);
+            if (phoneInput) localStorage.setItem("user_phone", phoneInput);
+            
+            selectedStadium = stadium;
+            showMainView();
+        } catch (err) {
+            console.error(err);
+            selectedStadium = stadium;
+            showMainView();
+        } finally {
+            btn.disabled = false;
+            btnText.innerText = "다회용기 매장 지도 보기";
+        }
     });
     function showMainView() {
       document.getElementById("view-welcome").classList.add("hidden");
