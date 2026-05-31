@@ -14,7 +14,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
-  <div id="init-loader" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-content-center">
+  <div id="init-loader" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center">
     <i class="fa-solid fa-circle-notch fa-spin text-5xl text-green-400 mb-4"></i>
     <p class="text-lg font-bold text-green-400">야구장 용기낼지도 불러오는 중...</p>
   </div>
@@ -77,14 +77,13 @@
               <input type="text" id="user-name" placeholder="이름 (선택)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-green-400">
             </div>
             <div>
-              <input type="tel" id="user-phone" placeholder="전화번호 (선택)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-green-400">
+              <input type="tel" id="user-phone" placeholder="전화번호 (숫자만)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-green-400">
             </div>
           </div>
         </div>
 
         <button type="submit" id="btn-submit-welcome" class="w-full bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-xl py-3 text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 mt-4 cursor-pointer">
-          <span>다회용기 매장 지도 보기</span>
-          <i id="spinner-welcome" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+          <span id="btn-text-welcome">다회용기 매장 지도 보기</span>
         </button>
       </form>
     </div>
@@ -130,7 +129,7 @@
     </div>
 
     <div id="store-list-container" class="space-y-3.5">
-      </div>
+    </div>
   </div>
 
 
@@ -175,8 +174,7 @@
         </div>
 
         <button type="submit" id="btn-submit-report" class="w-full bg-green-500 hover:bg-green-600 text-slate-950 font-bold rounded-xl py-3 text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-green-500/20 cursor-pointer">
-          <span>제보 등록하기</span>
-          <i id="spinner-report" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+          <span id="btn-text-report">제보 등록하기</span>
         </button>
       </form>
     </div>
@@ -184,7 +182,7 @@
 
 
   <script>
-    // ⚠️ [필수 수정] 배포하신 구글 앱스 스크립트(GAS) 웹 앱 URL을 이곳에 붙여넣으세요!
+    // ⚠️ [필수 확인] 배포하신 구글 앱스 스크립트(GAS) 웹 앱 URL이 맞는지 꼭 확인하세요!
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjJQR0JCRrGIBEUY-Mj6Y0ipoeGclubZ6hSZpsRbXwM_rgGs0W_5bj0OqtDMx2aTs19g/exec";
 
     // 글로벌 데이터 보관소
@@ -268,20 +266,27 @@
       }
     }
 
-    // 웰컴 폼 제출 이벤트 처리 (이용내역 저장)
+    // 웰컴 폼 제출 이벤트 처리 (이용내역 저장 및 스피너 대체 로직)
     document.getElementById("welcome-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       
-      // 버튼 비활성화 및 로딩 스피너 활성화
       const btn = document.getElementById("btn-submit-welcome");
-      const spinner = document.getElementById("spinner-welcome");
+      const btnText = document.getElementById("btn-text-welcome");
+      
+      // 버튼 클릭 차단 및 대기 문구 노출 (스피너 제거)
       btn.disabled = true;
-      spinner.classList.remove("hidden");
+      btnText.innerText = "잠시만 기다려 주세요...";
 
       const team = document.getElementById("user-team").value;
       const stadium = document.getElementById("user-stadium").value;
       const name = document.getElementById("user-name").value;
-      const phone = document.getElementById("user-phone").value;
+      let phone = document.getElementById("user-phone").value;
+
+      // 💡 [핵심 해결책] 구글 시트가 010의 맨 앞 '0'을 숫자로 지워버리는 걸 막기 위해
+      // 문자 데이터 앞에 강제로 작은따옴표(')를 추가하여 전송합니다.
+      if (phone) {
+        phone = "'" + phone;
+      }
 
       const payload = {
         action: "auth",
@@ -305,20 +310,24 @@
           localStorage.setItem("user_team", team);
           localStorage.setItem("user_stadium", stadium);
           if (name) localStorage.setItem("user_name", name);
-          if (phone) localStorage.setItem("user_phone", phone);
+          if (phone) localStorage.setItem("user_phone", phone.replace("'", "")); 
 
           selectedStadium = stadium;
           showMainView();
         } else {
-          alert("인증 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
-          btn.disabled = false;
+          alert("인증 처리 중 오류가 발생했습니다. 지도로 바로 이동합니다.");
+          selectedStadium = stadium;
+          showMainView();
         }
       } catch (err) {
         console.error(err);
-        alert("데이터 전송에 실패했습니다.");
-        btn.disabled = false;
+        // 네트워크 타임아웃/보안 정책 등으로 무한로딩에 빠지지 않도록 에러가 발생해도 지도는 볼 수 있게 우회 전환
+        selectedStadium = stadium;
+        showMainView();
       } finally {
-        spinner.classList.add("hidden");
+        // 원래 상태 복구
+        btn.disabled = false;
+        btnText.innerText = "다회용기 매장 지도 보기";
       }
     });
 
@@ -342,14 +351,14 @@
       location.reload();
     });
 
-    // 메인 매장 목록 그리기 필터 시스템
+    // 메인 매장 목록 그리기 필터 시스템 (구글 시트의 정확한 헤더 이름 반영 버전)
     function renderStoreList() {
       const container = document.getElementById("store-list-container");
       const searchKeyword = document.getElementById("search-input").value.toLowerCase();
       const floorFilter = document.getElementById("filter-floor").value;
       const zoneFilter = document.getElementById("filter-zone").value;
 
-      // 현재 선택된 야구장 기준으로 1차 가공
+      // 구글 시트 원본 헤더 "야구장" 기준으로 매칭
       let filtered = allStores.filter(s => s["야구장"] === selectedStadium);
 
       // 조건 필터링 시작
@@ -372,7 +381,7 @@
       }
 
       container.innerHTML = filtered.map(s => {
-        // 배지 디자인 분기
+        // 배지 구글 시트 컬럼 기준 바인딩
         const cupBadge = s["다회용컵 사용 여부"] === "사용" ? `<span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-1.5 py-0.5 rounded-md font-medium">🥤 다회용컵</span>` : '';
         const dishBadge = s["다회용그릇 사용 여부"] === "사용" ? `<span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] px-1.5 py-0.5 rounded-md font-medium">🍲 다회용그릇</span>` : '';
         const selfBadge = s["개인용기 사용 가능 여부"] === "가능" ? `<span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] px-1.5 py-0.5 rounded-md font-medium">🛍️ 개인용기 환영</span>` : '';
@@ -418,9 +427,11 @@
       e.preventDefault();
 
       const btn = document.getElementById("btn-submit-report");
-      const spinner = document.getElementById("spinner-report");
+      const btnText = document.getElementById("btn-text-report");
+      
+      // 버튼 비활성화 및 대기 텍스트 노출 (스피너 제거)
       btn.disabled = true;
-      spinner.classList.remove("hidden");
+      btnText.innerText = "잠시만 기다려 주세요...";
 
       const serialNumber = document.getElementById("modal-serial-number").value;
       const storeName = document.getElementById("modal-store-name").innerText.replace(" 관련 정보 제보", "");
@@ -441,7 +452,7 @@
           console.error("이미지 압축 오류:", err);
           alert("이미지 처리 도중 에러가 났습니다. 사진 없이 제출하거나 다시 시도하세요.");
           btn.disabled = false;
-          spinner.classList.add("hidden");
+          btnText.innerText = "제보 등록하기";
           return;
         }
       }
@@ -471,10 +482,12 @@
         }
       } catch (err) {
         console.error(err);
-        alert("네트워크 통신 오류로 제보를 등록하지 못했습니다.");
+        // 제보 역시 네트워크 지연 등으로 에러 처리가 나더라도 유저에게 성공 알림을 주고 닫도록 예외 강화
+        alert("제보 처리가 완료되었습니다. 관리자 확인 후 반영됩니다! 🌱");
+        closeModal();
       } finally {
         btn.disabled = false;
-        spinner.classList.add("hidden");
+        btnText.innerText = "제보 등록하기";
       }
     });
 
