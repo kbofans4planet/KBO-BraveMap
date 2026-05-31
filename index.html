@@ -138,16 +138,18 @@
   </div>
   <div id="report-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4">
-      <div class="flex justify-between items-center mb-4"> <!-- items-center 추가 -->
-        <div>
-          <h3 class="text-base font-bold text-white flex items-center gap-1.5">
-            <i class="fa-solid fa-pen-to-square text-green-400"></i> 정보 제보 / 수정 요청
-          </h3>
-          <p id="modal-store-name" class="text-sm text-green-400 font-bold mt-1"></p>
-        </div>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-white text-xl cursor-pointer p-1">
-          &times;
-        </button>
+      <!-- report-modal 내부의 상단 부분을 이렇게 교체하세요 -->
+      <div class="flex justify-between items-start mb-4"> <!-- items-start로 변경하여 상단 정렬 -->
+          <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+                  <i class="fa-solid fa-pen-to-square text-green-400"></i> 정보 제보 / 수정 요청
+              </h3>
+              <p id="modal-store-name" class="text-sm text-green-400 font-bold mt-1"></p>
+          </div>
+          <!-- 닫기 버튼에 pt-1 등을 추가하여 텍스트 상단과 라인을 맞춤 -->
+          <button id="btn-close-modal" class="text-slate-400 hover:text-white text-xl cursor-pointer pt-0.5">
+              &times;
+          </button>
       </div>
       <form id="report-form" class="space-y-3.5">
         <input type="hidden" id="modal-serial-number">
@@ -244,7 +246,7 @@
             <span class="text-xs">${medals[idx] || idx + 1}</span>
             <span class="font-bold text-white">${t.team}</span>
           </div>
-          <span class="text-xs text-green-400 font-semibold bg-green-400/10 px-2 py-0.5 rounded-full">${t.count}회 참여</span>
+          <span class="text-xs text-green-400 font-semibold bg-green-400/10 px-2 py-0.5 rounded-full">${t.count}명 참여</span>
         </div>
       `).join('');
     }
