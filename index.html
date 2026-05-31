@@ -181,6 +181,23 @@
           </p>
       </div>
     </div> </div>
+  <div id="review-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4">
+      <div class="flex justify-between items-start mb-4">
+          <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+                  <i class="fa-solid fa-comment-dots text-sky-400"></i> 소중한 후기 남기기
+              </h3>
+              <p id="review-modal-store-name" class="text-sm text-sky-400 font-bold mt-1"></p>
+          </div>
+          <button id="btn-close-review" class="text-slate-400 hover:text-white text-2xl cursor-pointer mt-[-4px]">&times;</button>
+      </div>
+      <form id="review-form" class="space-y-3.5">
+          <textarea id="review-message" required maxlength="100" rows="3" placeholder="100자 이내로 후기를 남겨주세요!" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-sky-400 resize-none"></textarea>
+          <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-xl py-3 text-xs">후기 등록</button>
+      </form>
+    </div>
+  </div>
   <div id="report-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4">
       <!-- report-modal 내부의 상단 부분을 이렇게 교체하세요 -->
@@ -441,18 +458,28 @@
         const dishBadge = s["다회용그릇 사용 여부"] === "사용" ? `<span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[12px] px-1.5 py-0.5 rounded-md font-medium">🍲 다회용그릇</span>` : '';
         const selfBadge = s["개인용기 사용 가능 여부"] === "가능" ? `<span class="bg-green-500/10 text-green-400 border border-green-500/20 text-[12px] px-1.5 py-0.5 rounded-md font-medium">🛍️ 개인용기 환영</span>` : '';
         
+        // ... map 함수 내부 ...
         return `
-          <div class="bg-slate-850 border border-slate-800 rounded-2xl p-4 transition-colors">
+          <div onclick="showReviewListModal('${s["매장일련번호"]}', '${s["매장명"]}')" 
+               class="bg-slate-850 border border-slate-800 rounded-2xl p-4 cursor-pointer transition-all hover:border-slate-500 group">
+              
               <div class="flex justify-between items-center mb-3">
                   <span class="text-[11px] font-bold text-slate-400 bg-slate-950 px-2 py-1 rounded-md">
                       📍 ${s["층수"]} | ${s["구역"]} (${s["인근 블록"]})
                   </span>
-                  <button onclick="openReportModal('${s["매장일련번호"]}', '${s["매장명"]}')" 
-                          class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20 transition-all">
-                      <i class="fa-solid fa-circle-info mr-1"></i> 제보
-                  </button>
+                  <div class="flex gap-1.5" onclick="event.stopPropagation()"> 
+                      <button onclick="openReviewModal('${s["매장일련번호"]}', '${s["매장명"]}')" 
+                              class="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2 py-1 rounded-md border border-sky-500/20 cursor-pointer hover:bg-sky-500/20 transition-all">
+                          <i class="fa-solid fa-comment-dots mr-1"></i> 후기
+                      </button>
+                      
+                      <button onclick="openReportModal('${s["매장일련번호"]}', '${s["매장명"]}')" 
+                              class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 cursor-pointer hover:bg-emerald-500/20 transition-all">
+                          <i class="fa-solid fa-circle-info mr-1"></i> 제보
+                      </button>
+                  </div> 
               </div>
-          
+              
               <div>
                   <h4 class="text-lg font-bold text-white mb-1">${s["매장명"]}</h4>
                   <p class="text-xs text-slate-400 mb-3">${s["주요 메뉴"]}</p>
@@ -549,6 +576,42 @@
         reader.onerror = error => reject(error);
       });
     }
+    <div id="review-list-modal" class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 max-h-[80vh] overflow-y-auto">
+        <h3 id="list-modal-title" class="text-lg font-bold text-white mb-4">매장 후기</h3>
+        <div id="review-list-container" class="space-y-3">
+            </div>
+        <button onclick="document.getElementById('review-list-modal').classList.add('hidden')" 
+                class="w-full mt-4 bg-slate-700 py-2 rounded-xl text-sm">닫기</button>
+    </div>
+</div>
+// 후기 보기 버튼 클릭 시 실행될 함수
+async function showReviewListModal(serial, storeName) {
+    document.getElementById("list-modal-title").innerText = `${storeName} 후기`;
+    const container = document.getElementById("review-list-container");
+    container.innerHTML = "불러오는 중...";
+    document.getElementById("review-list-modal").classList.remove("hidden");
+
+    // GAS에서 후기 목록을 가져오는 요청 (구현 필요)
+    try {
+        const response = await fetch(`${GAS_WEB_APP_URL}?action=getReviews&serial=${serial}`);
+        const reviews = await response.json();
+        
+        if (reviews.length === 0) {
+            container.innerHTML = "<p class='text-slate-500 text-sm text-center'>아직 작성된 후기가 없어요!</p>";
+        } else {
+            container.innerHTML = reviews.map(r => `
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <p class="text-[10px] text-green-400 font-bold mb-1">${teamEmojis[r.team] || "⚾"} ${r.team}</p>
+                    <p class="text-sm text-white">${r.message}</p>
+                </div>
+            `).join('');
+        }
+    } catch (e) {
+        container.innerHTML = "후기를 불러오지 못했습니다.";
+    }
+}
+    
   </script>
 </body>
 </html>
