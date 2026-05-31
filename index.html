@@ -184,12 +184,9 @@
     let allStores = [];
     let selectedStadium = "";
     let isAlreadyAuthed = false;
-    (function preCheckAuth() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const localAuthDate = localStorage.getItem("last_auth_date");
+    (function preLoadData() {
       const localStadium = localStorage.getItem("user_stadium");
-      if (localAuthDate === todayStr && localStadium) {
-        isAlreadyAuthed = true;
+      if (localStadium) {
         selectedStadium = localStadium;
       }
     })();
@@ -197,6 +194,18 @@
       document.getElementById("user-phone").addEventListener("input", (e) => {
         e.target.value = e.target.value.replace(/[^0-9]/g, '');
       });
+      
+      await fetchInitialData();
+    
+      // 항상 환영 페이지를 보여줍니다.
+      document.getElementById("view-welcome").classList.remove("hidden");
+      
+      // 기존 정보가 있다면 불러오기 (값 세팅)
+      if (localStorage.getItem("user_team")) document.getElementById("user-team").value = localStorage.getItem("user_team");
+      if (localStorage.getItem("user_stadium")) document.getElementById("user-stadium").value = localStorage.getItem("user_stadium");
+      if (localStorage.getItem("user_name")) document.getElementById("user-name").value = localStorage.getItem("user_name");
+      if (localStorage.getItem("user_phone")) document.getElementById("user-phone").value = localStorage.getItem("user_phone");
+    });
       await fetchInitialData();
       if (isAlreadyAuthed) {
         showMainView();
