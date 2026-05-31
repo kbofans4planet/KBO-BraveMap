@@ -233,7 +233,6 @@
 
     async function fetchInitialData() {
       try {
-        // mode: 'cors'를 넣어서 브라우저가 헤더를 체크하도록 합니다.
         const response = await fetch(GAS_WEB_APP_URL, {
           method: 'GET',
           mode: 'cors',
@@ -241,12 +240,14 @@
             'Content-Type': 'application/json'
           }
         });
-        
+    
         if (!response.ok) throw new Error("서버 응답 오류");
+        
         const data = await response.json();
         if (data.status === "success") {
           allStores = data.stores;
           renderTopTeams(data.topTeams);
+        }
       } catch (err) {
         console.error("네트워크 연동 실패:", err);
       } finally {
