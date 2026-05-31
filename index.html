@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <link rel="shortcut icon" href="#">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>야구장 용기낼지도</title>
@@ -259,26 +260,33 @@
     }
     document.getElementById("welcome-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById("user-name").value;
-      const phone = document.getElementById("user-phone").value;
+      
+      const nameInput = document.getElementById("user-name").value;
+      const phoneInput = document.getElementById("user-phone").value;
+    
       // 로직: 이름이 있는데 전화번호가 없으면 경고 후 중단
-      if (name.trim() !== "" && phone.trim() === "") {
-        alert("전화번호도 함께 입력해주세요!");
+      if (nameInput.trim() !== "" && phoneInput.trim() === "") {
+        alert("이름을 입력하셨다면 전화번호도 꼭 입력해주세요!");
         document.getElementById("user-phone").focus();
         return;
       }
+    
       const btn = document.getElementById("btn-submit-welcome");
       const btnText = document.getElementById("btn-text-welcome");
       btn.disabled = true;
       btnText.innerText = "잠시만 기다려 주세요...";
+    
       const team = document.getElementById("user-team").value;
       const stadium = document.getElementById("user-stadium").value;
-      const name = document.getElementById("user-name").value;
-      let phone = document.getElementById("user-phone").value;
-      if (phone) {
-        phone = "'" + phone;
+      
+      // 아래에서 다시 const/let을 쓰지 않고 직접 사용
+      let phoneValue = phoneInput; 
+      if (phoneValue) {
+        phoneValue = "'" + phoneValue;
       }
-      const payload = { action: "auth", team, stadium, name, phone };
+    
+      const payload = { action: "auth", team, stadium, name: nameInput, phone: phoneValue };
+
       try {
         const response = await fetch(GAS_WEB_APP_URL, {
           method: "POST",
