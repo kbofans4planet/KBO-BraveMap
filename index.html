@@ -706,15 +706,13 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
         btnText.innerText = "후기 등록하기";
     }
 });
-
 window.openImage = function(url) {
-    const modal = document.getElementById('image-viewer-modal');
-    const img = document.getElementById('full-image');
-    img.src = url;
-    modal.classList.remove('hidden');
+    if (url && url.startsWith('http')) {
+        window.open(url, '_blank'); // 새 탭에서 링크 열기
+    } else {
+        alert("유효한 사진 링크가 없습니다.");
+    }
 };
-
-    
   </script>
 </body>
 </html>
