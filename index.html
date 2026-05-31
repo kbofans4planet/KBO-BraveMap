@@ -232,6 +232,16 @@
   
       // 2. 페이지 초기화 함수
       async function init() {
+          const todayStr = new Date().toISOString().split('T')[0];
+          const lastAuthDate = localStorage.getItem("last_auth_date");
+      
+          // 만약 날짜가 바뀌었다면 기존 인증 기록을 삭제
+          if (lastAuthDate && lastAuthDate !== todayStr) {
+              localStorage.removeItem("last_auth_date");
+              // 필요하다면 아래 항목들도 삭제 가능
+              localStorage.removeItem("user_team");
+              localStorage.removeItem("user_stadium");
+          }
           // 전화번호 숫자만 입력되게 설정
           document.getElementById("user-phone").addEventListener("input", (e) => {
               e.target.value = e.target.value.replace(/[^0-9]/g, '');
