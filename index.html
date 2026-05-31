@@ -298,8 +298,8 @@
           localStorage.setItem("last_auth_date", todayStr);
           localStorage.setItem("user_stadium", stadium);
           localStorage.setItem("user_team", team);
-          if (name) localStorage.setItem("user_name", name);
-          if (phone) localStorage.setItem("user_phone", phone.replace("'", ""));
+          if (nameInput) localStorage.setItem("user_name", name);
+          if (phoneInput) localStorage.setItem("user_phone", phone.replace("'", ""));
           selectedStadium = stadium;
           showMainView();
         } else {
